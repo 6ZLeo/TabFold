@@ -1,0 +1,43 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 Elijah Semyonov
+// Copyright (c) 2026 6ZLeo and TabFold contributors
+// Direct AGSL port of the MIT-licensed DuoLikeAnimation Metal shader:
+// be927684c8585ce3d90761095284329dfdeff901 / DuoLikeAnimation/Shaders/DuoFold.metal
+// Adaptation: bottom hinge, opaque bitmap input, bounded 16-sample blur.
+// See assets/licenses/DuoLikeAnimation-MIT.txt and THIRD_PARTY_NOTICES.md.
+
+uniform shader content;
+uniform float2 resolution;
+uniform float tiltDegrees;
+uniform float eyeDistancePx;
+uniform float blurSpread;
+uniform float darkening;
+
+half4 main(float2 pixel) {
+    float rotation = radians(clamp(tiltDegrees, 0.0, 70.0));
+    if (rotation < 0.00001) return half4(content.eval(pixel).rgb, 1.0);
+    float distanceFromHinge = max(resolution.y - pixel.y, 0.0);
+    float heightAbovePlane = distanceFromHinge * sin(rotation);
+    float remainingDepth = eyeDistancePx - heightAbovePlane;
+    if (remainingDepth <= 0.001) return half4(0.0, 0.0, 0.0, 1.0);
+    float2 glassPoint = float2(pixel.x, resolution.y - distanceFromHinge * cos(rotation));
+    float2 center = resolution * 0.5;
+    float2 imagePoint = center + (glassPoint - center) * (eyeDistancePx / remainingDepth);
+    float scatter = blurSpread * heightAbovePlane;
+    if (imagePoint.x < -scatter || imagePoint.y < -scatter ||
+        imagePoint.x > resolution.x + scatter || imagePoint.y > resolution.y + scatter)
+        return half4(0.0, 0.0, 0.0, 1.0);
+    half transmission = half(max(1.0 - darkening * scatter, 0.0));
+    if (scatter < 0.5) return half4(content.eval(imagePoint).rgb * transmission, 1.0);
+    float samples = clamp(floor(scatter * 2.0), 6.0, 16.0);
+    float noisePhase = fract(sin(dot(pixel, float2(12.9898, 78.233))) * 43758.5453) * 6.28318530718;
+    half3 colors = half3(0.0);
+    for (int index = 0; index < 16; index++) {
+        float activeSample = 1.0 - step(samples, float(index));
+        float ring = scatter * sqrt((float(index) + 0.5) / samples);
+        float direction = float(index) * 2.39996322973 + noisePhase;
+        float2 samplePixel = imagePoint + ring * float2(cos(direction), sin(direction));
+        colors += content.eval(samplePixel).rgb * half(activeSample);
+    }
+    return half4(colors / half(samples) * transmission, 1.0);
+}

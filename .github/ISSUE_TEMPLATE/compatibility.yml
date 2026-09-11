@@ -1,0 +1,36 @@
+name: 兼容性或动画问题
+description: 提交不包含个人信息的设备表现与复现步骤
+body:
+  - type: markdown
+    attributes:
+      value: 请勿提交序列号、账号、通知截图、完整系统日志或凭证。型号识别不等于已实测兼容。
+  - type: textarea
+    id: device
+    attributes:
+      label: 设备与版本
+      description: 型号、Android / One UI、TabFold 版本、键盘名称；可粘贴检查后的兼容性报告。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤与实际表现
+      description: 当前场景、底座放置方式、预期效果、实际发生的情况。
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: 表现
+      options:
+        - 基本可用
+        - 角度或动画问题
+        - 无法触发
+        - 其他
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 信息检查
+      options:
+        - label: 我已检查内容，不包含个人敏感信息或凭证。
+          required: true

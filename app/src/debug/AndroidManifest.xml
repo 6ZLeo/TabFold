@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- Synthetic renderer check; never included in release APKs. -->
+        <activity android:name=".debug.RenderProbeActivity" android:exported="true" />
+    </application>
+</manifest>

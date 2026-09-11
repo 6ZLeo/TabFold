@@ -1,0 +1,35 @@
+name: Android checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Install Android SDK packages
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Verify bundled disclosures
+        run: |
+          cmp DISCLAIMER.md app/src/main/assets/legal/DISCLAIMER.md
+          cmp PRIVACY.md app/src/main/assets/legal/PRIVACY.md
+      - name: Check, test and build
+        run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug assembleRelease
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: validation-reports
+          path: app/build/reports/
+          retention-days: 14

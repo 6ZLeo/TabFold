@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">TabFold</string>
+    <string name="service_name">TabFold 开合盖动画</string>
+    <string name="accessibility_description">仅在你阅读风险说明并主动启用后，使用桌面或锁屏的内存截图与平板姿态显示开合盖动画。仅判断窗口所属应用，不读取控件文字、不记录按键、不代替触摸、不解锁设备。合盖检测在符合条件的亮屏桌面/锁屏上低频采样；熄屏或进入其他应用时停止。本应用不联网、不保存或上传截图。系统禁止截图时使用透明明暗层。内存、系统及第三方软件仍可能存在安全风险。可在 TabFold 暂停或撤回同意，也可关闭此服务。</string>
+</resources>
