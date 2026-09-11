@@ -90,7 +90,7 @@ class FoldMotionModel(context: Context, private val rotation: () -> Int) : Senso
     }
     fun trace30Seconds() {
         traceUntil = SystemClock.elapsedRealtime() + 30_000L
-        Log.i("DuoTab", "trace_start,elapsed_ms,opening_deg,lateral_deg,hz,delivery_age_ms")
+        Log.i("TabFold", "trace_start,elapsed_ms,opening_deg,lateral_deg,hz,delivery_age_ms")
         _message.value = R.string.calibration_trace
     }
     fun keyboardStatus(): String {
@@ -144,9 +144,9 @@ class FoldMotionModel(context: Context, private val rotation: () -> Int) : Senso
             _reading.value = MotionReading(angle, lateral, hz, age, true)
             if (traceUntil > 0L) {
                 val now = SystemClock.elapsedRealtime()
-                if (now <= traceUntil) Log.i("DuoTab", String.format(Locale.US,
+                if (now <= traceUntil) Log.i("TabFold", String.format(Locale.US,
                     "sample,%d,%.3f,%.3f,%.1f,%d", now, angle, lateral, hz, age))
-                else { traceUntil = 0L; Log.i("DuoTab", "trace_end"); _message.value = R.string.calibration_trace_done }
+                else { traceUntil = 0L; Log.i("TabFold", "trace_end"); _message.value = R.string.calibration_trace_done }
             }
         }
     }

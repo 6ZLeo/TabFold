@@ -26,10 +26,6 @@ The Gradle wrapper library is from Gradle 8.7; its SHA-256 was checked against t
 
 `device_names.json` contains factual model-to-marketing-name pairs for Samsung tablets, selected from Google's public Android supported-device catalog on 2026-09-11: https://storage.googleapis.com/play_public/supported_devices.csv . The map does not imply device certification or app compatibility. Trademarks belong to their respective owners.
 
-## Earlier experiment
-
-The private proof of concept began with Atomicx7/Duo-animation v1.0. At the publication audit, that Android repository had no explicit license. This standalone release therefore excludes its demo dashboard, Compose fold modifier, original AGSL file and other demo assets. Android entry points, project configuration and UI are separately authored; the renderer is ported directly from the licensed Metal source above. This note describes provenance and does not imply endorsement.
-
 ## App icon and project-owned code
 
 The TabFold icon is a project-authored vector drawing of a tablet and keyboard, with no Apple or Samsung logo assets. The device adaptation, automatic trigger service, calibration, settings and disclosures are covered by the project MIT license.
