@@ -13,5 +13,5 @@ $testCp = @(
     (Find-TestJar 'org.hamcrest\hamcrest-core\1.3'),
     (Find-TestJar 'org.jetbrains.kotlin\kotlin-stdlib\2.0.20')
 ) -join ';'
-& java '-Dfile.encoding=UTF-8' -cp $testCp org.junit.runner.JUnitCore io.github.sixzleo.tabfold.ConsentPolicyTest io.github.sixzleo.tabfold.device.CompatibilityTest io.github.sixzleo.tabfold.sensors.OpeningMathTest io.github.sixzleo.tabfold.auto.AutoPolicyTest io.github.sixzleo.tabfold.auto.ClosingDetectorTest
+& java '-Dfile.encoding=UTF-8' -cp $testCp org.junit.runner.JUnitCore io.github.sixzleo.tabfold.ConsentPolicyTest io.github.sixzleo.tabfold.device.CompatibilityTest io.github.sixzleo.tabfold.sensors.OpeningMathTest io.github.sixzleo.tabfold.auto.AutoPolicyTest io.github.sixzleo.tabfold.auto.ClosingDetectorTest io.github.sixzleo.tabfold.auto.OpeningDetectorTest io.github.sixzleo.tabfold.ui.SetupPolicyTest io.github.sixzleo.tabfold.auto.OpenPositionTest
 if ($LASTEXITCODE -ne 0) { throw 'Angle tests failed.' }

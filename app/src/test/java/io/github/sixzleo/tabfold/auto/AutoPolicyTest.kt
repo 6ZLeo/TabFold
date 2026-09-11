@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class AutoPolicyTest {
+    @Test fun allAppsRequiresScopeChoiceAndExcludesPermissionPages() {
+        assertEquals(Scene.APP, AutoPolicy.scene(false, "calculator", "home", true, "tabfold"))
+        assertNull(AutoPolicy.scene(false, "calculator", "home", false, "tabfold"))
+        for (owner in listOf("tabfold", "android", "com.android.settings", "com.android.systemui",
+            "com.samsung.android.packageinstaller", "com.google.android.permissioncontroller"))
+            assertNull(AutoPolicy.scene(false, owner, "home", true, "tabfold"))
+        assertNull(AutoPolicy.scene(true, "calculator", "home", true, "tabfold"))
+        assertNull(AutoPolicy.scene(false, null, "home", true, "tabfold"))
+    }
+    @Test fun appCaptureCannotCrossPackageOrWindowBoundaries() {
+        assertTrue(AutoPolicy.sameAppWindow("a", "a", 5, 5))
+        assertFalse(AutoPolicy.sameAppWindow("a", "b", 5, 5))
+        assertFalse(AutoPolicy.sameAppWindow("a", "a", 5, 6))
+        assertFalse(AutoPolicy.sameAppWindow(null, null, 5, 5))
+        assertFalse(AutoPolicy.sameAppWindow("a", "a", -1, -1))
+    }
     @Test fun launcherTaskbarOverAnotherAppDoesNotQualifyAsHome() {
         assertEquals("bank", AutoPolicy.windowOwner("bank", "home", false, homeWidget = true))
         assertNull(AutoPolicy.windowOwner(null, "home", false, homeWidget = true))

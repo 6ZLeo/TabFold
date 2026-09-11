@@ -27,6 +27,8 @@ jobs:
         run: |
           cmp DISCLAIMER.md app/src/main/assets/legal/DISCLAIMER.md
           cmp PRIVACY.md app/src/main/assets/legal/PRIVACY.md
+          cmp DISCLAIMER.en.md app/src/main/assets/legal/DISCLAIMER.en.md
+          cmp PRIVACY.en.md app/src/main/assets/legal/PRIVACY.en.md
       - name: Check, test and build
         run: ./gradlew --no-daemon testDebugUnitTest lintDebug assembleDebug assembleRelease
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

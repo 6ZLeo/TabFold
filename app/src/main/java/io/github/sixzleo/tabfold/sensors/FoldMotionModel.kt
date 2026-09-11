@@ -16,6 +16,7 @@ import kotlin.math.abs
 import kotlin.math.sqrt
 import kotlin.math.exp
 import io.github.sixzleo.tabfold.SettingsStore
+import io.github.sixzleo.tabfold.R
 import io.github.sixzleo.tabfold.device.DeviceProfile
 
 data class MotionReading(val angle: Float = 0f, val lateral: Float = 0f,
@@ -26,12 +27,12 @@ class FoldMotionModel(context: Context, private val rotation: () -> Int) : Senso
     private val prefs = SettingsStore.prefs(context)
     private val sensor = DeviceProfile.motionSensor(context)
     val hasSensor = sensor != null
-    val sourceName = when (sensor?.type) {
-        Sensor.TYPE_GAME_ROTATION_VECTOR -> "陀螺仪 + 重力融合，不依赖磁场"
-        Sensor.TYPE_ROTATION_VECTOR -> "姿态融合，磁吸配件可能影响表现"
-        Sensor.TYPE_GRAVITY -> "重力模式，快速移动时精度有限"
-        Sensor.TYPE_ACCELEROMETER -> "基础加速度模式，快速移动时误差较大"
-        else -> "没有可用姿态传感器"
+    val sourceLabel = when (sensor?.type) {
+        Sensor.TYPE_GAME_ROTATION_VECTOR -> R.string.source_game
+        Sensor.TYPE_ROTATION_VECTOR -> R.string.source_rotation
+        Sensor.TYPE_GRAVITY -> R.string.source_gravity
+        Sensor.TYPE_ACCELEROMETER -> R.string.source_accel
+        else -> R.string.unavailable
     }
     private val matrix = FloatArray(9)
     private val screen = FloatArray(9)
@@ -49,7 +50,7 @@ class FoldMotionModel(context: Context, private val rotation: () -> Int) : Senso
     val opening = _opening.asStateFlow()
     private val _fullyOpen = MutableStateFlow(prefs.getFloat("fully_open", 110f).coerceIn(45f, 160f))
     val fullyOpen = _fullyOpen.asStateFlow()
-    private val _message = MutableStateFlow("键盘平放桌面，翻起到舒适位置，再点「设为展开位置」。")
+    private val _message = MutableStateFlow(R.string.calibration_default)
     val message = _message.asStateFlow()
     fun hasFreshReading(): Boolean = started && lastNs != 0L &&
         SystemClock.elapsedRealtimeNanos() - lastNs < 500_000_000L
@@ -59,7 +60,7 @@ class FoldMotionModel(context: Context, private val rotation: () -> Int) : Senso
         lastNs = 0L; publishedNs = 0L; windowNs = 0L; count = 0; hz = 0f
         _reading.value = MotionReading()
         started = sensor?.let { manager.registerListener(this, it, samplingPeriodUs, 0) } ?: false
-        if (!started) _message.value = "无法订阅姿态数据，请用手动预览。"
+        if (!started) _message.value = R.string.sensor_unavailable
     }
     fun changeSamplingPeriod(samplingPeriodUs: Int) {
         val current = sensor ?: return
@@ -74,22 +75,23 @@ class FoldMotionModel(context: Context, private val rotation: () -> Int) : Senso
         traceUntil = 0L
         _reading.value = _reading.value.copy(ready = false)
     }
-    fun calibrateOpen() {
+    fun calibrateOpen(): Boolean {
         val sample = _reading.value
         if (!sample.ready || SystemClock.elapsedRealtimeNanos() - lastNs > 500_000_000L) {
-            _message.value = "正在等待新鲜的姿态数据。"; return
+            _message.value = R.string.sensor_wait; return false
         }
         if (sample.angle !in 45f..160f || abs(sample.lateral) > 12f) {
-            _message.value = "请展开到 45°–160°，保持键盘水平并避免左右歪斜。"; return
+            _message.value = R.string.calibration_invalid; return false
         }
         _fullyOpen.value = sample.angle
         prefs.edit().putFloat("fully_open", sample.angle).apply()
-        _message.value = "展开位置已固定；停在半开位置时，动画不会自动归零。"
+        _message.value = R.string.calibration_saved
+        return true
     }
     fun trace30Seconds() {
         traceUntil = SystemClock.elapsedRealtime() + 30_000L
         Log.i("DuoTab", "trace_start,elapsed_ms,opening_deg,lateral_deg,hz,delivery_age_ms")
-        _message.value = "记录本应用角度 30 秒：慢开、停住、合起。日志仅用于本机调试。"
+        _message.value = R.string.calibration_trace
     }
     fun keyboardStatus(): String {
         val keyboards = InputDevice.getDeviceIds().map { InputDevice.getDevice(it) }.filterNotNull()
@@ -144,7 +146,7 @@ class FoldMotionModel(context: Context, private val rotation: () -> Int) : Senso
                 val now = SystemClock.elapsedRealtime()
                 if (now <= traceUntil) Log.i("DuoTab", String.format(Locale.US,
                     "sample,%d,%.3f,%.3f,%.1f,%d", now, angle, lateral, hz, age))
-                else { traceUntil = 0L; Log.i("DuoTab", "trace_end"); _message.value = "角度记录完成。" }
+                else { traceUntil = 0L; Log.i("DuoTab", "trace_end"); _message.value = R.string.calibration_trace_done }
             }
         }
     }

@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
     <uses-feature android:name="android.hardware.sensor.gyroscope" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <queries><intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.HOME" /></intent></queries>
     <application android:allowBackup="false" android:dataExtractionRules="@xml/data_extraction_rules" android:label="@string/app_name"
-        android:icon="@drawable/ic_tabfold" android:supportsRtl="true" android:theme="@style/Theme.TabFold">
+        android:icon="@drawable/ic_tabfold" android:supportsRtl="true" android:localeConfig="@xml/locales_config" android:theme="@style/Theme.TabFold">
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent-filter>
         </activity>
+        <service android:name=".auto.MotionService" android:exported="false" android:foregroundServiceType="specialUse">
+            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="User-enabled continuous tablet orientation sensing for visible cover animations across permitted applications, with an ongoing pause notification. Sensors stop while the display is off." />
+        </service>
         <service android:name=".auto.AutoFoldService" android:exported="true"
             android:label="@string/service_name" android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter>
